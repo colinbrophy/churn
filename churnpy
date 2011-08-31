@@ -20,7 +20,7 @@ nok=0
 
 #... Load list of tetragraph log frequencies.....
 frequency = [0]*456976
-InFile = open("../data/TetLogFreq.txt")
+InFile = open("data/TetLogFreq.txt")
 temp_string = InFile.read(456976)
 InFile.close()
 
