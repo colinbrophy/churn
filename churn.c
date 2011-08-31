@@ -391,7 +391,6 @@ static uint get_score(const suint* text, size_t len)
 	uint score;
 	size_t i;
 	size_t index;
-	uint scoreadd;
 
 	score = 0;
 	len -= 3;
@@ -408,8 +407,7 @@ static uint get_score(const suint* text, size_t len)
 		index = (index + text[i + 2]) * FREQ_LEN_FOREACH;
 		index += text[i + 3];
 
-		scoreadd = freq[index];
-		score += scoreadd;
+		score += freq[index];
 	}
 
 	return score;

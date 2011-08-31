@@ -35,6 +35,6 @@ ${DEPS}: .%.dep: %.c Makefile
 	${CC} ${CCFLAGS} -MM $< > $@
 
 clean::
-	-rm -f *~ *.o *.dep ${TARGET}
+	${RM} *~ *.o *.dep ${TARGET}
 
 distclean:: clean

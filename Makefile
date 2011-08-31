@@ -15,6 +15,9 @@ LDFLAGS += -g
 else ifeq ($(CFG),release)
 CCFLAGS += -O3 -s
 LDFLAGS += -O3
+else ifeq ($(CFG),profile)
+CCFLAGS += -O3 -g
+LDFLAGS += -O3 -g
 endif
 
 
@@ -36,6 +39,6 @@ ${DEPS}: .%.dep: %.c Makefile
 	${CC} ${CCFLAGS} -MM $< > $@
 
 clean::
-	-rm -f *~ *.o *.dep ${TARGET}
+	${RM} *~ *.o *.dep ${TARGET}
 
 distclean:: clean
