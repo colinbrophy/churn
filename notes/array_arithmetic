@@ -1,0 +1,20 @@
+
+ind:
+
+ax^3 + bx^2 + cx + d
+
+(ax^2 + bx + c) * x + d
+
+((ax + b) * x + c) * x + d
+
+((x * FREQ_LEN_FOREACH + y) * FREQ_LEN_FOREACH + z) * FREQ_LEN_FOREACH
+
+bufind:
+
+ax^3 + bx^2 + cx
+
+((ax + b) * x + c) * x
+
+((ALPHALEN * x + y) * ALPHALEN + z) * ALPHALEN
+
+

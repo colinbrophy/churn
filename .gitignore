@@ -1,0 +1,10 @@
+#.gitignore
+
+*.dep
+*.o
+
+# Executables
+churn
+
+# Profile
+profile

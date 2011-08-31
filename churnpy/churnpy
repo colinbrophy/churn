@@ -1,0 +1,160 @@
+#!/usr/bin/python2
+# Automatic solver for substitution ciphers, using CHURN algorithm
+
+import time
+startTime = time.time()
+
+#import python module to make random numbers
+from random import randrange
+
+
+# .....declarations of strings, lists and variables.....
+alphabet='abcdefghijklmnopqrstuvwxyz'
+cipher=''
+plain=''
+parent=['A']*26
+child = ['A'] * 26
+bestscore=0
+length=0
+nok=0
+
+#... Load list of tetragraph log frequencies.....
+frequency = [0]*456976
+InFile = open("../data/TetLogFreq.txt")
+temp_string = InFile.read(456976)
+InFile.close()
+
+for j in range (456976):
+  frequency[j]= ord(temp_string[j])- ord('A')
+
+def decipher(key):
+    plain=''
+
+    for j in range(length):
+        for k in range(26):
+            if(cipher[j]==key[k]):
+                plain = plain + alphabet[k]
+                break
+    return(plain)
+
+
+def get_score():
+
+    #...add scores of all tetragraphs..........
+    score=0
+    for j in range(length-3):
+        fi=alphabet.index(plain[j])
+        se=alphabet.index(plain[j+1])
+        th=alphabet.index(plain[j+2])
+        fo=alphabet.index(plain[j+3])
+        position=17576*fi +676*se +26*th +fo
+        score=score+frequency[position]
+
+    return(score)
+
+
+def show_best():
+
+    #...if score is best to date, print out score, key & plaintext..........
+
+
+        print 'score=',bestscore,'   nr of keys=',nok
+        print 'key = ',
+        a=''
+        for m in range(26):
+            a=a+child[m]
+        print a
+        print
+
+        a=''
+        for m in range(length):
+            a=a+plain[m]
+        print a
+        print
+
+# ---------------------------------------------------------------------------
+
+ciphertext = '''EXOOV QEB OBMLOQ YBILT FP ZXRPFKD X ILQ LC ZLKZBOK FK RH FKQBIIFDBKZB XKA
+DLSBOKJBKQ ZFOZIBP. TEFQBEXII XPHBA JB QL YOFKD VLR FK LK QEFP. ZXK VLR DBQ LSBO
+YV KBUQ TBBH? PBBJP IFHB VLRO PLOQ LC MOLYIBJ. ELMB VLR ZXK JXHB FQ, QEFP FP
+QROKFKD FKQL PLJBQEFKD YFD. XKVTXV EBOB FP QEB FKQBIIFDBKZB OBMLOQ COLJ LRO
+XDBKQP.
+TB EXSB YBBK DBQQFKD OBMLOQP LC BKBJV XZQFSFQV XILKD BPPBU ZLXPQ RKABO ZLSBO LC
+IXPQ TBBHP CILLAFKD. LKB OBMLOQBA PFDEQFKD LC X PRYJXOFKB ZILPB FKPELOB LK
+BPPBU JXOPEBP.
+PBSBOXI KXWF PVJMXQEFPBOP FK BXPQ XKDIFX HKLTK QL EXSB PIFMMBA PROSBFIIXKZB
+AROFKD QEB ZLKCRPFLK TFQE PLJB MLPPFYIB PFDEQFKDP IXQBO FK ILKALK.
+FKAFXK FKQBIIFDBKZB OBMLOQFKD ZLKPFABOXYIB XZQFSFQV FK YLJYXV XJLKD BU-MXQ
+CXPZFPQP TFQE IFKHP QL QEB RH KXWF JLSBJBKQ, FK MXOQFZRIXO QL LKB LC QEB XDBKQP
+KLT JFPPFKD.
+YV QEB TXV, TB FKQBOZBMQBA QEB XQQXZEBA JBPPXDB, TEFZE PELRIAKQ MLPB QLL JRZE
+LC X ZEXIIBKDB QL ABZOVMQ! ZEXOIFB
+
+'''
+
+length=len(ciphertext);
+for j in range(length):
+    if(ciphertext[j]>='A' and ciphertext[j] <='Z'):
+        cipher=cipher+ciphertext[j]
+length=len(cipher)
+
+
+#...make 1st parent key..........
+key =  'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
+for m in range(26):
+    parent[m]=key[m]
+
+
+#..decipher & score with 1st parent....
+
+plain=decipher(parent)
+parentscore=get_score()
+
+value = [1,1,1,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3,4,4,4,4,5,5,5,5,5,5,5,6,6,6,
+	6,6,7,7,7,7,7,8,8,9,9,9,9,10,10,10,10,10,11,11,11,11,12,12,12,12,13,13,14,
+	14,15,15,16,16,16,16,17,17,18,18,19,19,20,21,21,22,23,23,24,25,26,27,28,29,
+	30,31,33,34,37,39,41,43,48,57,60 ]
+
+for x in value:
+	x /= 110.0
+	x *= length
+
+#......CHURN  process.......
+
+repeat=1
+keys_since_hit = 0
+maxkeys = 40000
+minscore = 9 * length
+
+while repeat>0:
+    #........make child key.....
+    for m in range(26):
+        child[m]=parent[m]
+    p=randrange(26);q=randrange(26)
+    buff=child[p]; child[p]=child[q];child[q]=buff
+    nok+=1
+
+    #........decipher with child key & score.....
+    plain=decipher(child)
+    childscore=get_score()
+
+    #....if childscore passes test, make child into parent.....
+
+    x=randrange(100)
+    if(childscore>parentscore-value[x]):
+        parentscore=childscore
+        for m in range(26):
+            parent[m]=child[m]
+
+    #....if childscore best to date show key,plaintext
+    if(childscore>bestscore):
+        bestscore=childscore
+        show_best()
+        keys_since_hit = 0
+    else:
+		keys_since_hit += 1
+		if(keys_since_hit == maxkeys and bestscore > minscore):
+			break
+
+print (time.time() - startTime)
