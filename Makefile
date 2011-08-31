@@ -44,7 +44,12 @@ subdirs:
 		$(MAKE) -C $$dir; \
 	done
 
-clean::
+subdirsclean:
+	for dir in $(SUBDIRS); do \
+		$(MAKE) -C $$dir clean; \
+	done
+
+clean: subdirsclean
 	${RM} *~ *.o *.dep ${TARGET}
 
 

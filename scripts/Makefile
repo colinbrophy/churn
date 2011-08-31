@@ -30,6 +30,6 @@ ${TARGETS}: % : %.c .%.dep Makefile
 	${CC} ${CCFLAGS} $< -o $@
 
 clean::
-	${RM} *~ *.o *.dep ${TARGET}
+	${RM} *~ *.o *.dep ${TARGETS}
 
 distclean:: clean
