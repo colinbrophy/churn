@@ -29,10 +29,10 @@ const int char_error = EOF;
 
 const int churn_cipherlen = 110;
 const int churn_range[CHURNLEN] = {
-	1,1,1,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3,4,4,4,4,5,5,5,5,5,5,5,6,6,6,6,6,
-	7,7,7,7,7,8,8,9,9,9,9,10,10,10,10,10,11,11,11,11,12,12,12,12,13,13,14,14,
-	15,15,16,16,16,16,17,17,18,18,19,19,20,21,21,22,23,23,24,25,26,27,28,29,
-	30,31,33,34,37,39,41,43,48,57,60
+	1,1,1,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3,4,4,4,4,5,5,5,5,5,5,5,6,6,6,
+	6,6,7,7,7,7,7,8,8,9,9,9,9,10,10,10,10,10,11,11,11,11,12,12,12,12,13,13,
+	14,14,15,15,16,16,16,16,17,17,18,18,19,19,20,21,21,22,23,23,24,25,26,
+	27,28,29,30,31,33,34,37,39,41,43,48,57,60
 };
 
 struct keys {
@@ -83,7 +83,8 @@ int main(int argc, char** argv)
 	case 2:
 		ciph = load_cipher_file(argv[1]);
 		if (ciph == NULL)
-			error_term("Error Loading ciphertext file: %s\n", argv[1]);
+			error_term("Error Loading ciphertext file: %s\n",
+				argv[1]);
 		if (ciph->len <= 0)
 			error_term("Error wrong no chars entered\n");
 		break;
@@ -207,11 +208,13 @@ static suint* init_freq_tbl()
 					 * xl^3 + yl^2 + zl + i
 					 * This is then factorized to make:
 					 * l(l(lx + y) + z) + i */
-					ind  = (x * FREQ_LEN_FOREACH + y) * FREQ_LEN_FOREACH + z;
+					ind  = (x * FREQ_LEN_FOREACH + y) 
+						* FREQ_LEN_FOREACH + z;
 					ind *= FREQ_LEN_FOREACH;
 					ind += i;
 
-					bufind  = (ALPHALEN * x + y) * ALPHALEN + z;
+					bufind  = (ALPHALEN * x + y) 
+						* ALPHALEN + z;
 					bufind *= ALPHALEN;
 					bufind += i;
 

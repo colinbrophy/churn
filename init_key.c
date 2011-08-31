@@ -51,7 +51,7 @@ static int cmp_freq(const void* a, const void* b)
 {
 	const struct letter_freq* sa = a;
 	const struct letter_freq* sb = b;
-	return (sb->freq - sa->freq);
+	return sb->freq - sa->freq;
 }
 
 static void sort_letterfreq(struct letter_freq* freq)
