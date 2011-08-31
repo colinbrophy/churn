@@ -1,4 +1,5 @@
 # .gitignore
 
-# create_tet
+# Executables
 create_tet
+speedtest

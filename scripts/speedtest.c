@@ -11,7 +11,7 @@
 #define FREQ_TBL_LEN (pow(FREQ_LEN_FOREACH, (FREQ_DIMENSIONS - 1)) * ALPHALEN)
 
 
-const char* freq_file = "../.tet";
+const char* freq_file = "../data/tet";
 
 
 void delete_buffer(struct buffer* buf)

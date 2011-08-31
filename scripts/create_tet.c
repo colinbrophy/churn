@@ -21,7 +21,9 @@ int main(int argc, char** argv)
 	FILE* out;
 	char* buf;
 	unsigned int i;
-
+	
+	if (argc != 3)
+		error_term("Wrong no of args: %d\n", argc);
 	in = fopen(argv[1], "rb");
 	out = fopen(argv[2], "wb");
 	if (in == NULL)
@@ -40,4 +42,6 @@ int main(int argc, char** argv)
 
 	fclose(in);
 	fclose(out);
+
+	return 0;
 }

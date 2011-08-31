@@ -3,6 +3,7 @@ SRCS    := $(wildcard *.c)
 OBJS    := ${SRCS:.c=.o}
 DEPS    := $(addprefix ., ${SRCS:.c=.dep})
 XDEPS   := $(wildcard ${DEPS})
+SUBDIRS := scripts
 
 CCFLAGS = -std=c89 -Wall -Wextra -pedantic
 LDFLAGS =
@@ -22,8 +23,8 @@ endif
 
 
 
-.PHONY: all clean distclean
-all:: ${TARGET}
+.PHONY: all clean distclean subdirs
+all:: ${TARGET} subdirs
 
 ifneq (${XDEPS},)
 include ${XDEPS}
@@ -38,7 +39,13 @@ ${OBJS}: %.o: %.c .%.dep
 ${DEPS}: .%.dep: %.c Makefile
 	${CC} ${CCFLAGS} -MM $< > $@
 
+subdirs:
+	for dir in $(SUBDIRS); do \
+		$(MAKE) -C $$dir; \
+	done
+
 clean::
 	${RM} *~ *.o *.dep ${TARGET}
+
 
 distclean:: clean

@@ -1,38 +1,33 @@
-TARGET  := speedtest
 SRCS    := $(wildcard *.c)
-OBJS    := ${SRCS:.c=.o}
+TARGETS := ${SRCS:.c=}
 DEPS    := $(addprefix ., ${SRCS:.c=.dep})
 XDEPS   := $(wildcard ${DEPS})
 
 CCFLAGS = -std=c89 -Wall -Wextra -pedantic
 LDFLAGS =
 
-CFG = debug
+CFG = release
 
 ifeq ($(CFG),debug)
-	CCFLAGS += -g
-	LDFLAGS += -g
+CCFLAGS += -g
 else ifeq ($(CFG),release)
-	CCFLAGS += -O3 -s
-	LDFLAGS += -O3
+CCFLAGS += -O3 -s
 endif
 
 
+
 .PHONY: all clean distclean
-all:: ${TARGET}
+all:: ${TARGETS}
 
 ifneq (${XDEPS},)
 include ${XDEPS}
 endif
 
-${TARGET}: ${OBJS}
-	${CC} ${LDFLAGS} -o $@ $^ ${LIBS}
-
-${OBJS}: %.o: %.c .%.dep
-	${CC} ${CCFLAGS} -o $@ -c $<
-
 ${DEPS}: .%.dep: %.c Makefile
-	${CC} ${CCFLAGS} -MM $< > $@
+	${CC} ${CCFLAGS} -MM $< | sed -e "s/\.o//g" > $@
+
+${TARGETS}: % : %.c .%.dep Makefile
+	${CC} ${CCFLAGS} $< -o $@
 
 clean::
 	${RM} *~ *.o *.dep ${TARGET}
