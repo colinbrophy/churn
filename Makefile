@@ -1,13 +1,11 @@
 FINDDIRS = find . -type d -print
 
-rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/) \
+rwildcard := $(foreach d,$(wildcard $1*),$(call rwildcard,$d/) \
 	$(filter $(subst *,%,$2),$d))
 
 TARGET		 = churn
-TARG_DBG	 = .dbg
-TARG_RELEASE	 = .release
-TARG_PROF	 = .prof
-TARGETS		:= $(TARG_DBG) $(TARG_RELEASE) $(TARG_PROF)
+TARG_FILE	 = target
+BUILD		 = dbg
 TARG_SRCS	:= $(foreach dir,$(SUBDIRS),$(notdir \
 	$(call rwildcard $(dir),*.c))) $(wildcard *.c)
 TARG_OBJS	:= $(TARG_SRCS:.c=.o)
@@ -22,32 +20,38 @@ CFLAGS		:= -std=c89 -Wall -Wextra -pedantic
 LDFLAGS 	:= -std=c89 -Wall -Wextra -pedantic
 DEPFLAGS	:= $(if $(filter cc gcc, $(CC)),-MM -MG, -M)
 
-.PHONY: all clean deps
+.PHONY: all clean deps debug release profile build_options
 
-all: debug
+all: build_options $(TARGET)
 deps: $(DEPS)
 
-debug: CFLAGS += -g
-debug: $(TARG_DBG) $(TARGET)
-	touch $(TARG_RELEASE)
-	touch $(TARG_PROF)
+debug:
+	$(MAKE) BUILD=dbg
+release:
+	$(MAKE) BUILD=release
+profile:
+	$(MAKE) BUILD=prof
+dbg_CFLAGS = -g
+dbg_LDFLAGS =
 
-release: CFLAGS += -O3 -s
-release: LDFLAGS += -O3
-release: $(TARG_RELEASE) $(TARGET)
-	touch $(TARG_DBG)
-	touch $(TARG_PROF)
+release_CFLAGS = -O3 -s
+release_LDFLAGS = -O3
 
-profile: CFLAGS += -O3 -g
-profile: LDFLAGS += -O3
-profile: $(TARG_PROF) $(TARGET)
-	touch $(TARG_RELEASE)
-	touch $(TARG_DBG)
+prof_CFLAGS  = -O3 -g
+prof_LDFLAGS = -O3
 
-$(TARGETS): clean
+include $(wildcard $(TARG_FILE))
+
+CFLAGS += $($(addprefix $(BUILD), _CFLAGS))
+LDFLAGS += $($(addprefix $(BUILD), _LDFLAGS))
+
+build_options:
+	$(if $(filter $(BUILD),$(CURRENT_TARGET)),,\
+		$(MAKE) clean; \
+		echo "CURRENT_TARGET = $(BUILD)" > $(TARG_FILE) \
+	)
 
 $(TARGET): $(TARG_OBJS)
-	echo $(TARG_OBJS)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 .%.c.d: %.c
