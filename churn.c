@@ -15,7 +15,6 @@
 #include "init_key.h"
 
 #define CHURNLEN 100
-#define FREQ_DIMENSIONS 4
 #define FREQ_LEN_FOREACH 32
 #define FREQ_TBL_LEN (pow(FREQ_LEN_FOREACH, (FREQ_DIMENSIONS - 1)) * ALPHALEN)
 #define FREQ_FILE_LEN pow(ALPHALEN, FREQ_DIMENSIONS)
@@ -24,8 +23,6 @@
 static const char* freq_file  = "data/tet";
 static const uint maxkeys = 70000;
 static const int min_bestscore_per_char = 9;
-
-const int char_error = EOF;
 
 const int churn_cipherlen = 110;
 const int churn_range[CHURNLEN] = {
@@ -160,18 +157,6 @@ int main(int argc, char** argv)
 	return EXIT_SUCCESS;
 }
 
-void error_term(const char* error_msg, ...)
-{
-	va_list args;
-
-	fflush(stdout);
-	va_start(args, error_msg);
-	vfprintf(stderr, error_msg, args);
-	va_end(args);
-
-	exit(EXIT_FAILURE);
-}
-
 /* Loads freq table
  * returns freq table
  * No error codes: terminates if error */
@@ -208,12 +193,12 @@ static suint* init_freq_tbl()
 					 * xl^3 + yl^2 + zl + i
 					 * This is then factorized to make:
 					 * l(l(lx + y) + z) + i */
-					ind  = (x * FREQ_LEN_FOREACH + y) 
+					ind  = (x * FREQ_LEN_FOREACH + y)
 						* FREQ_LEN_FOREACH + z;
 					ind *= FREQ_LEN_FOREACH;
 					ind += i;
 
-					bufind  = (ALPHALEN * x + y) 
+					bufind  = (ALPHALEN * x + y)
 						* ALPHALEN + z;
 					bufind *= ALPHALEN;
 					bufind += i;
@@ -321,74 +306,6 @@ static void decipher(suint* dest, const suint* src, size_t len,
 		dest[i] = key[src[i]];
 }
 
-uint char_to_uint(char c)
-{
-	switch (c) {
-	case 'A': case 'a': return 0;
-	case 'B': case 'b': return 1;
-	case 'C': case 'c': return 2;
-	case 'D': case 'd': return 3;
-	case 'E': case 'e': return 4;
-	case 'F': case 'f': return 5;
-	case 'G': case 'g': return 6;
-	case 'H': case 'h': return 7;
-	case 'I': case 'i': return 8;
-	case 'J': case 'j': return 9;
-	case 'K': case 'k': return 10;
-	case 'L': case 'l': return 11;
-	case 'M': case 'm': return 12;
-	case 'N': case 'n': return 13;
-	case 'O': case 'o': return 14;
-	case 'P': case 'p': return 15;
-	case 'Q': case 'q': return 16;
-	case 'R': case 'r': return 17;
-	case 'S': case 's': return 18;
-	case 'T': case 't': return 19;
-	case 'U': case 'u': return 20;
-	case 'V': case 'v': return 21;
-	case 'W': case 'w': return 22;
-	case 'X': case 'x': return 23;
-	case 'Y': case 'y': return 24;
-	case 'Z': case 'z': return 25;
-	default:
-		return -1;
-	}
-}
-
-int uint_to_char(uint n)
-{
-	switch (n) {
-	case 0: return 'A';
-	case 1: return 'B';
-	case 2: return 'C';
-	case 3: return 'D';
-	case 4: return 'E';
-	case 5: return 'F';
-	case 6: return 'G';
-	case 7: return 'H';
-	case 8: return 'I';
-	case 9: return 'J';
-	case 10: return 'K';
-	case 11: return 'L';
-	case 12: return 'M';
-	case 13: return 'N';
-	case 14: return 'O';
-	case 15: return 'P';
-	case 16: return 'Q';
-	case 17: return 'R';
-	case 18: return 'S';
-	case 19: return 'T';
-	case 20: return 'U';
-	case 21: return 'V';
-	case 22: return 'W';
-	case 23: return 'X';
-	case 24: return 'Y';
-	case 25: return 'Z';
-	default:
-		return char_error;
-	}
-}
-
 static uint get_score(const suint* text, size_t len)
 {
 	uint score;
@@ -454,12 +371,4 @@ static void print_key(const suint* key)
 	buf[ALPHALEN] = '\0';
 
 	printf("Key = %s", buf);
-}
-
-void* safe_malloc(size_t size)
-{
-	void* p = malloc(size);
-	if (p == NULL)
-		error_term("Out of memory\n");
-	return p;
 }

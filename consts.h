@@ -7,6 +7,7 @@
 #define round(x) ((int) (x + 0.5))
 
 #define ALPHALEN 26
+#define FREQ_DIMENSIONS 4
 
 typedef unsigned char suint;
 typedef unsigned int uint;
