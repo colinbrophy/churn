@@ -1,56 +1,59 @@
-TARGET  := churn
-SRCS    := $(wildcard *.c)
-OBJS    := ${SRCS:.c=.o}
-DEPS    := $(addprefix ., ${SRCS:.c=.dep})
-XDEPS   := $(wildcard ${DEPS})
-SUBDIRS := scripts
+FINDDIRS = find . -type d -print
 
-CCFLAGS = -std=c89 -Wall -Wextra -pedantic
-LDFLAGS =
+rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/) \
+	$(filter $(subst *,%,$2),$d))
 
-CFG = debug
+TARGET		 = churn
+TARG_DBG	 = .dbg
+TARG_RELEASE	 = .release
+TARG_PROF	 = .prof
+TARGETS		:= $(TARG_DBG) $(TARG_RELEASE) $(TARG_PROF)
+TARG_SRCS	:= $(foreach dir,$(SUBDIRS),$(notdir \
+	$(call rwildcard $(dir),*.c))) $(wildcard *.c)
+TARG_OBJS	:= $(TARG_SRCS:.c=.o)
 
-ifeq ($(CFG),debug)
-CCFLAGS += -g
-LDFLAGS += -g
-else ifeq ($(CFG),release)
-CCFLAGS += -O3 -s
-LDFLAGS += -O3
-else ifeq ($(CFG),profile)
-CCFLAGS += -O3 -g
-LDFLAGS += -O3 -g
-endif
+SRCS		:= $(TARG_SRCS)
+OBJS		:= $(TARG_OBJS)
+DEPS		:= $(addprefix ., ${SRCS:.c=.c.d})
+OTHERDIRS	 = scripts data notes
+SUBDIRS 	:= $(filter_out $(OTHERDIRS), $(shell $(FINDDIRS)))
 
+CFLAGS		:= -std=c89 -Wall -Wextra -pedantic
+LDFLAGS 	:= -std=c89 -Wall -Wextra -pedantic
+DEPFLAGS	:= $(if $(filter cc gcc, $(CC)),-MM -MG, -M)
 
+.PHONY: all clean deps
 
-.PHONY: all clean distclean subdirs
-all:: ${TARGET} subdirs
+all: debug
+deps: $(DEPS)
 
-ifneq (${XDEPS},)
-include ${XDEPS}
-endif
+debug: CFLAGS += -g
+debug: $(TARG_DBG) $(TARGET)
+	touch $(TARG_RELEASE)
+	touch $(TARG_PROF)
 
-${TARGET}: ${OBJS}
-	${CC} ${LDFLAGS} -o $@ $^ ${LIBS}
+release: CFLAGS += -O3 -s
+release: LDFLAGS += -O3
+release: $(TARG_RELEASE) $(TARGET)
+	touch $(TARG_DBG)
+	touch $(TARG_PROF)
 
-${OBJS}: %.o: %.c .%.dep
-	${CC} ${CCFLAGS} -o $@ -c $<
+profile: CFLAGS += -O3 -g
+profile: LDFLAGS += -O3
+profile: $(TARG_PROF) $(TARGET)
+	touch $(TARG_RELEASE)
+	touch $(TARG_DBG)
 
-${DEPS}: .%.dep: %.c Makefile
-	${CC} ${CCFLAGS} -MM $< > $@
+$(TARGETS): clean
 
-subdirs:
-	for dir in $(SUBDIRS); do \
-		$(MAKE) -C $$dir; \
-	done
+$(TARGET): $(TARG_OBJS)
+	echo $(TARG_OBJS)
+	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-subdirsclean:
-	for dir in $(SUBDIRS); do \
-		$(MAKE) -C $$dir clean; \
-	done
+.%.c.d: %.c
+	$(CC) $(CFLAGS) $(DEPFLAGS) $< | \
+	sed -n "H;$$ {g;s@.*:\(.*\)@$*.o $@: \$$\(wildcard\1\)@;p}" > $@
+clean:
+	$(RM) -r *~ $(OBJS) $(TARGET)
 
-clean: subdirsclean
-	${RM} *~ *.o *.dep ${TARGET}
-
-
-distclean:: clean
+include $(DEPS)
