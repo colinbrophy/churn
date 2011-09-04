@@ -26,10 +26,8 @@ endif
 ${DEPS}: .%.dep: %.c Makefile
 	${CC} ${CCFLAGS} -MM $< | sed -e "s/\.o//g" > $@
 
-${TARGETS}: % : %.c .%.dep Makefile
-	${CC} ${CCFLAGS} $< -o $@
+${TARGETS}: % : %.c .%.dep Makefile ../utils.c
+	${CC} ${CCFLAGS} $< ../utils.c -o $@
 
-clean::
-	${RM} *~ *.o *.dep ${TARGETS}
 
 distclean:: clean
