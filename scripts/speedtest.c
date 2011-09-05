@@ -1,5 +1,5 @@
-#include "../consts.h"
-#include "../file_load.h"
+#include "consts.h"
+#include "file_load.h"
 #include <math.h>
 #include <time.h>
 
