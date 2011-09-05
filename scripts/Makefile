@@ -1,33 +1,21 @@
-SRCS    := $(wildcard *.c)
-TARGETS := ${SRCS:.c=}
-DEPS    := $(addprefix ., ${SRCS:.c=.dep})
-XDEPS   := $(wildcard ${DEPS})
+SCRIPTS_DIR	:= scripts
+SCRIPTS_SRCS    := $(wildcard $(SCRIPTS_DIR)/*.c)
+SCRIPTS_TARGETS := $(SCRIPTS_SRCS:.c=)
+SCRIPTS_DEPS	:=  $(addprefix $(DEP_DIR)/, $(SCRIPTS_SRCS:.c=.c.d))
 
-CCFLAGS = -std=c89 -Wall -Wextra -pedantic
-LDFLAGS =
+TARGETS 	+= $(SCRIPTS_TARGETS)
+DEPS		+= $(SCRIPTS_DEPS)
+SCRS		+= $(SCRIPTS_SRCS)
 
-CFG = release
+.PHONY: deps scripts
+scripts: $(SCRIPTS_TARGETS)
+deps: $(SCRIPTS_DEPS)
 
-ifeq ($(CFG),debug)
-CCFLAGS += -g
-else ifeq ($(CFG),release)
-CCFLAGS += -O3 -s
-endif
+$(SCRIPTS_DEPS): $(DEP_DIR)/%.c.d: %.c
+	$(CC) $(CFLAGS) -MM $< | \
+	sed -n "H;$$ {g;s@.*:\(.*\)@$*.o $@: \$$\(wildcard\1\)@;p}" | \
+	sed -e "s/\.o//g" > $@
 
+$(SCRIPTS_TARGETS): %: %.c $(DEP_DIR)/%.c.d $(OBJS_DIR)/utils.o
+	$(CC) $(CFLAGS) $< $(OBJS_DIR)/utils.o -o $@
 
-
-.PHONY: all clean distclean
-all:: ${TARGETS}
-
-ifneq (${XDEPS},)
-include ${XDEPS}
-endif
-
-${DEPS}: .%.dep: %.c Makefile
-	${CC} ${CCFLAGS} -MM $< | sed -e "s/\.o//g" > $@
-
-${TARGETS}: % : %.c .%.dep Makefile ../utils.c
-	${CC} ${CCFLAGS} $< ../utils.c -o $@
-
-
-distclean:: clean
