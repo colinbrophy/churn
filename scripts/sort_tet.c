@@ -30,7 +30,7 @@ int main(int argc, char** argv)
 	FILE* in;
 	FILE* out;
 	char* buf;
-	unsigned int i, x;
+	unsigned int i;
 	static struct letter_freq freq[DIMENSIONS][ALPHALEN];
 
 
