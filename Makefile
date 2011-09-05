@@ -63,7 +63,7 @@ $(OBJS_DIR)/%.o:
 
 $(DEP_DIR)/%.c.d: %.c
 	$(CC) $(CFLAGS) $(DEPFLAGS) $< | \
-	sed -n "H;$$ {g;s@.*:\(.*\)@$*.o $@: \$$\(wildcard\1\)@;p}" > $@
+	sed -n "H;$$ {g;s@.*:\(.*\)@$(OBJS_DIR)/$*.o $@: \$$\(wildcard\1\)@;p}" > $@
 clean:
 	$(RM) -r *~ $(OBJS) $(TARGETS)
 
