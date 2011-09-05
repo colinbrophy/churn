@@ -34,7 +34,7 @@ int main(int argc, char** argv)
 	static struct letter_freq freq[DIMENSIONS][ALPHALEN];
 
 
-	memset(letter_freq, 0, sizeof(letter_freq));
+	memset(freq, 0, sizeof(struct letter_freq));
 
 	if (argc != 3)
 		error_term("Wrong no of args: %d\n", argc);
@@ -49,7 +49,7 @@ int main(int argc, char** argv)
 		buf[i] -= 'A';
 
 	for (i = 0; i < ALPHALEN; i++) {
-		freq[1][i] +=
+		freq[1][i].letter += 0;
 	}
 
 	fprintf(stderr, "%d\n", i);
