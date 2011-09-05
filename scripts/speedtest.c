@@ -6,7 +6,6 @@
 #define TEXTLEN 4
 #define FREQ_LEN_FOREACH 32
 #define FREQ_DIMENSIONS 4
-#define FREQ_FILE_LEN pow((double)ALPHALEN, (double)FREQ_DIMENSIONS)
 #define CHUNK (1024 * 4)
 #define FREQ_TBL_LEN (pow(FREQ_LEN_FOREACH, (FREQ_DIMENSIONS - 1)) * ALPHALEN)
 

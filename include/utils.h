@@ -8,7 +8,5 @@
 
 void error_term(const char* error_msg, ...);
 void* safe_malloc(size_t size);
-uint char_to_uint(char c);
-int uint_to_char(uint n);
 
 #endif /* UTILS_H */
