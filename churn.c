@@ -91,7 +91,7 @@ int main(int argc, char** argv)
 	}
 
 
-	init_freq_tbl();
+	freq = init_freq_tbl();
 	if (freq == NULL)
 		error_term("Error Loading: %s\n", freq_file);
 
@@ -164,6 +164,7 @@ int main(int argc, char** argv)
 static suint* init_freq_tbl()
 {
 	struct buffer* buf;
+	suint* freq;
 	size_t x, y, z, i;
 	size_t ind, bufind;
 
