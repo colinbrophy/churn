@@ -8,6 +8,7 @@
 
 #define ALPHALEN 26
 #define FREQ_DIMENSIONS 4
+#define FREQ_FILE_LEN pow(ALPHALEN, FREQ_DIMENSIONS)
 
 typedef unsigned char suint;
 typedef unsigned int uint;

@@ -17,8 +17,6 @@
 #define CHURNLEN 100
 #define FREQ_LEN_FOREACH 32
 #define FREQ_TBL_LEN (pow(FREQ_LEN_FOREACH, (FREQ_DIMENSIONS - 1)) * ALPHALEN)
-#define FREQ_FILE_LEN pow(ALPHALEN, FREQ_DIMENSIONS)
-
 
 static const char* freq_file  = "data/tet";
 static const uint maxkeys = 70000;
