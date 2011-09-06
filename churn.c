@@ -11,7 +11,6 @@
 #include <math.h>
 
 #include "file_load.h"
-#include "consts.h"
 #include "init_key.h"
 #include "utils.h"
 
