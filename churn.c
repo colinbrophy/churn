@@ -41,7 +41,6 @@ static struct buffer* load_cipher_file(const char* file);
 static struct buffer* load_cipher_buf(FILE* file);
 static void decipher(suint* dest, const suint* src, size_t len,
 	const suint* key);
-static uint get_score(const suint* text, size_t len);
 static void print_plain(const suint* plain, size_t len);
 static void print_key(const suint* key);
 static int uint_to_char(uint n);
@@ -50,7 +49,7 @@ static uint char_to_uint(char c);
 uint char_to_uint(const char c);
 int uint_to_char(uint n);
 
-static suint* freq; /* const, don't modify */
+DEF_GET_SCORE(static, get_score, FREQ_LEN_FOREACH)
 
 int main(int argc, char** argv)
 {
@@ -60,6 +59,7 @@ int main(int argc, char** argv)
 	suint parent[ALPHALEN];
 	suint child[ALPHALEN];
 	size_t i;
+	suint* freq;
 
 	uint parentscore;
 	uint childscore;
@@ -112,7 +112,7 @@ int main(int argc, char** argv)
 
 	decipher(plain, ciphtxt, ciph->len, parent);
 
-	parentscore = get_score(plain, ciph->len);
+	parentscore = get_score(plain, ciph->len, freq);
 
 	for (;;) {
 		size_t rand1;
@@ -130,7 +130,7 @@ int main(int argc, char** argv)
 		child[rand2] = tmp;
 
 		decipher(plain, ciphtxt, ciph->len, child);
-		childscore = get_score(plain, ciph->len);
+		childscore = get_score(plain, ciph->len, freq);
 
 		rand1 = rand() % CHURNLEN;
 		if (childscore > (parentscore - modifed_churn[rand1])) {
@@ -305,33 +305,6 @@ static void decipher(suint* dest, const suint* src, size_t len,
 
 	for (i = 0; i < len; i++)
 		dest[i] = key[src[i]];
-}
-
-static uint get_score(const suint* text, size_t len)
-{
-	uint score;
-	size_t i;
-	size_t index;
-
-	score = 0;
-	len -= 3;
-
-	for(i = 0; i < len; i++) {
-		/* Calculate the index
-		 * Does this by doing:
-		 * l = Array Dimension e.g. 32
-		 * xl^3 + yl^2 + zl + i
-		 * This is then factorized to make:
-		 * l(l(lx + y) + z) + i */
-		index = text[i] * FREQ_LEN_FOREACH;
-		index = (index + text[i + 1]) * FREQ_LEN_FOREACH;
-		index = (index + text[i + 2]) * FREQ_LEN_FOREACH;
-		index += text[i + 3];
-
-		score += freq[index];
-	}
-
-	return score;
 }
 
 static void print_plain(const suint* plain, size_t len)
