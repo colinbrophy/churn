@@ -10,7 +10,7 @@ void error_term(const char* error_msg, ...);
 void* safe_malloc(size_t size);
 
 #define DEF_GET_SCORE(prefix, name, len_foreach) \
-prefix uint name(const suint* text, size_t len, suint* freq) \
+prefix uint name(const suint* text, size_t len, const suint* freq) \
 { \
 	uint score; \
 	size_t i; \
