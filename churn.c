@@ -84,10 +84,12 @@ int main(int argc, char** argv)
 			error_term("Error wrong no chars entered\n");
 		break;
 	default:
-		ciph = NULL; /* Stops compiler complaining */
 		error_term("Wrong no of args: %d\n", argc - 1);
-	}
 
+		/* Stops compiler complaining.
+		 * Line never reached */
+		return EXIT_FAILURE;
+	}
 
 	freq = init_freq_tbl();
 	if (freq == NULL)
