@@ -15,8 +15,6 @@ static const uint freq_order[ALPHALEN] = {
 	4,19,14,0,13,8,17,18,7,3,11,2,22,20,12,5,24,6,15,1,21,10,23,16,9,25
 };
 
-static void letter_freq_init(struct letter_freq* lf);
-static void sort_letterfreq(struct letter_freq* freq);
 static int cmp_freq(const void* a, const void* b);
 static void freq_analysis(struct letter_freq* freq, const suint* ciph,
 	size_t ciphlen);
@@ -30,9 +28,14 @@ void load_inital_key(suint* key, const suint* ciph, size_t ciphlen)
 	struct letter_freq freq[ALPHALEN];
 	int i;
 
-	letter_freq_init(freq);
+	/* Init letter frequencies */
+	for (i = 0; i < ALPHALEN; i++) {
+		freq[i].letter = i;
+		freq[i].freq = 0;
+	}
+
 	freq_analysis(freq, ciph, ciphlen);
-	sort_letterfreq(freq);
+	qsort(freq, ALPHALEN, sizeof(struct letter_freq), &cmp_freq);
 
 	for (i = 0; i < ALPHALEN; i++)
 		key[freq_order[i]] = freq[i].letter;
@@ -52,18 +55,4 @@ static int cmp_freq(const void* a, const void* b)
 	const struct letter_freq* sa = a;
 	const struct letter_freq* sb = b;
 	return sb->freq - sa->freq;
-}
-
-static void sort_letterfreq(struct letter_freq* freq)
-{
-	qsort(freq, ALPHALEN, sizeof(struct letter_freq), &cmp_freq);
-}
-
-static void letter_freq_init(struct letter_freq* lf)
-{
-	size_t i;
-	for (i = 0; i < ALPHALEN; i++) {
-		lf[i].letter = i;
-		lf[i].freq = 0;
-	}
 }

@@ -7,7 +7,7 @@ OBJS_DIR	:= build/obj
 TARGET		 = churn
 TARGETS		 = churn
 TARG_FILE	 = target
-BUILD		 = dbg
+BUILD		 = release
 TARG_SRCS	:= $(foreach dir,$(SUBDIRS),$(notdir \
 	$(call rwildcard $(dir),*.c))) $(wildcard *.c)
 TARG_OBJS	:= $(addprefix $(OBJS_DIR)/, $(TARG_SRCS:.c=.o))
