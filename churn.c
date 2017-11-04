@@ -124,6 +124,7 @@ int main(int argc, char** argv)
 
 		memcpy(child, parent, sizeof(child));
 
+		/* We swap two randow chars from the parent to form the child */
 		do {
 			rand1 = rand() % ALPHALEN;
 			rand2 = rand() % ALPHALEN;
