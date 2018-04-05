@@ -49,7 +49,51 @@ static uint char_to_uint(char c);
 uint char_to_uint(const char c);
 int uint_to_char(uint n);
 
-DEF_GET_SCORE(static, get_score, FREQ_LEN_FOREACH)
+static void decipher(suint* dest, const suint* src, size_t len,
+	const suint* key)
+{
+	size_t i;
+
+	for (i = 0; i < len; i++) {
+		suint sc = src[i];
+	    suint sk = key[sc];
+		dest[i] = sk;
+	}
+}
+
+
+static uint get_score(const suint* ciph, size_t len, const suint* freq, const suint* key)
+{
+	uint score;
+	int i;
+	size_t index;
+
+	score = 0;
+	/* Calculate the index
+	 * Does this by doing:
+	 * l = Array Dimension e.g. 32
+	 * xl^3 + yl^2 + zl + i
+	 * This is then factorized to make:
+	 * l(l(lx + y) + z) + i */
+
+	index = key[ciph[len - 4]] * FREQ_LEN_FOREACH * FREQ_LEN_FOREACH * FREQ_LEN_FOREACH;
+	index += key[ciph[len - 3]] * FREQ_LEN_FOREACH * FREQ_LEN_FOREACH;
+	index += key[ciph[len - 2]] * FREQ_LEN_FOREACH;
+	index += key[ciph[len - 1]];
+
+
+	for(i = len - 3; i >= 0; i--) {
+		int tmp;
+		score += freq[index];
+		index >>= 5; /* 32 bits */
+		tmp = key[ciph[i]];
+		tmp *= FREQ_LEN_FOREACH * FREQ_LEN_FOREACH * FREQ_LEN_FOREACH;
+	    index += tmp;
+	}
+	score += freq[index];
+
+	return score;
+}
 
 int main(int argc, char** argv)
 {
@@ -115,7 +159,7 @@ int main(int argc, char** argv)
 
 	decipher(plain, ciphtxt, ciph->len, parent);
 
-	parentscore = get_score(plain, ciph->len, freq);
+	parentscore = get_score(ciphtxt, ciph->len, freq, parent);
 
 	for (;;) {
 		size_t rand1;
@@ -133,8 +177,7 @@ int main(int argc, char** argv)
 		child[rand1] = child[rand2];
 		child[rand2] = tmp;
 
-		decipher(plain, ciphtxt, ciph->len, child);
-		childscore = get_score(plain, ciph->len, freq);
+		childscore = get_score(ciphtxt, ciph->len, freq, child);
 
 		rand1 = rand() % CHURNLEN;
 		if (childscore > (parentscore - modifed_churn[rand1])) {
@@ -142,6 +185,7 @@ int main(int argc, char** argv)
 			memcpy(parent, child, sizeof(child));
 
 			if (childscore > bestscore) {
+				decipher(plain, ciphtxt, ciph->len, child);
 				print_key(child);
 				printf("\nScore = %d\n", childscore);
 				printf("Number of keys = %d\n", nok);
@@ -302,16 +346,6 @@ err:
 	delete_buffer(ciph);
 	return NULL;
 }
-
-static void decipher(suint* dest, const suint* src, size_t len,
-	const suint* key)
-{
-	size_t i;
-
-	for (i = 0; i < len; i++)
-		dest[i] = key[src[i]];
-}
-
 static void print_plain(const suint* plain, size_t len)
 {
 	size_t i;
@@ -331,7 +365,7 @@ static int keys_cmp(const void* a, const void* b)
 static void print_key(const suint* key)
 {
 	char buf[ALPHALEN + 1];
-	size_t i;
+	int i;
 	struct keys tmp[ALPHALEN];
 
 

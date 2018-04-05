@@ -37,11 +37,11 @@ profile:
 dbg_CFLAGS = -g
 dbg_LDFLAGS =
 
-release_CFLAGS = -O3 -s
-release_LDFLAGS = -O3
+release_CFLAGS = -Ofast -s
+release_LDFLAGS = -Ofast
 
-prof_CFLAGS  = -O3 -g
-prof_LDFLAGS = -O3
+prof_CFLAGS  = -Ofast -masm=intel -g3
+prof_LDFLAGS = -Ofast -g3
 
 include $(wildcard $(TARG_FILE))
 
