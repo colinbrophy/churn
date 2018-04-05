@@ -20,7 +20,7 @@
 #define FREQ_TBL_LEN (pow(FREQ_LEN_FOREACH, (FREQ_DIMENSIONS - 1)) * ALPHALEN)
 
 static const char* freq_file  = "data/tet";
-static const uint maxkeys = 70000;
+static const int maxkeys = 70000;
 static const int min_bestscore_per_char = 9;
 
 const int churn_cipherlen = 110;
@@ -61,11 +61,28 @@ static void decipher(suint* dest, const suint* src, size_t len,
 	}
 }
 
-
-static uint get_score(const suint* ciph, size_t len, const suint* freq, const suint* key)
-{
-	uint score;
+static int get_score2(const suint* freq, int* score_cache, int len,
+		const suint* key, int oldscore, const suint* ciph, int key1, int key2) {
 	int i;
+	for (i = 0; i < len - 3; i++)
+		/* Has the letter changed? */
+		if (ciph[i] == key1 || ciph[i] == key2) {
+			size_t index = key[ciph[i]] * FREQ_LEN_FOREACH * FREQ_LEN_FOREACH * FREQ_LEN_FOREACH;
+			index += key[ciph[i + 1]] * FREQ_LEN_FOREACH * FREQ_LEN_FOREACH;
+			index += key[ciph[i + 2]] * FREQ_LEN_FOREACH;
+			index += key[ciph[i + 3]];
+			oldscore += freq[index] - score_cache[i];
+			score_cache[i] = freq[index];
+		}
+
+	return oldscore;
+}
+
+static int get_score(const suint* ciph, size_t len, const suint* freq, const suint* key)
+{
+	size_t tmp;
+	size_t score;
+	size_t i;
 	size_t index;
 
 	score = 0;
@@ -82,14 +99,21 @@ static uint get_score(const suint* ciph, size_t len, const suint* freq, const su
 	index += key[ciph[len - 1]];
 
 
-	for(i = len - 3; i >= 0; i--) {
-		int tmp;
+	for(i = len - 3; i > 0; i--) {
 		score += freq[index];
 		index >>= 5; /* 32 bits */
-		tmp = key[ciph[i]];
+		tmp = ciph[i];
+		tmp = key[tmp];
 		tmp *= FREQ_LEN_FOREACH * FREQ_LEN_FOREACH * FREQ_LEN_FOREACH;
 	    index += tmp;
 	}
+	score += freq[index];
+
+	index >>= 5; /* 32 bits */
+	tmp = ciph[i];
+	tmp = key[tmp];
+	tmp *= FREQ_LEN_FOREACH * FREQ_LEN_FOREACH * FREQ_LEN_FOREACH;
+	index += tmp;
 	score += freq[index];
 
 	return score;
@@ -105,14 +129,14 @@ int main(int argc, char** argv)
 	size_t i;
 	suint* freq;
 
-	uint parentscore;
-	uint childscore;
-	uint bestscore;
+	int parentscore;
+	int childscore;
+	int bestscore;
 	int modifed_churn[CHURNLEN];
 
-	uint nok = 0;
-	uint minscore = 0;
-	uint keys_since_hit = 0;
+	int nok = 0;
+	int minscore = 0;
+	int keys_since_hit = 0;
 
 	switch (argc) {
 	case 1:
@@ -164,7 +188,7 @@ int main(int argc, char** argv)
 	for (;;) {
 		size_t rand1;
 		size_t rand2;
-		suint tmp;
+		int tmp;
 
 		memcpy(child, parent, sizeof(child));
 

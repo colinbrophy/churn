@@ -1,0 +1,13 @@
+mov freq[index], tmp
+add tmp, score
+
+shr 5, index
+
+mov ciph[i], tmp
+mov key[tmp], tmp
+shl 16, tmp
+add tmp, index
+
+sub 1, i
+cmp i
+loop
