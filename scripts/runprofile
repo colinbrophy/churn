@@ -3,4 +3,4 @@
 valgrind --tool=callgrind --dump-instr=yes --trace-jump=yes \
 	--compress-strings=no --branch-sim=no --compress-pos=no --cache-sim=yes \
 	--cacheuse=yes \
-	--callgrind-out-file=profile ./churn test_input 
+	--callgrind-out-file=profile ./churn test_long 
